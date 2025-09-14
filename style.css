@@ -1,0 +1,17 @@
+body {
+    font-family: 'Inter', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+.touch-active:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+}
+.page {
+    display: none;
+}
+.page.active {
+    display: block;
+}
+.chart-bar {
+    transition: height 0.5s ease-out;
+}

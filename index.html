@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Gastos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-900 text-white antialiased">
+
+    <div id="app-container" class="max-w-lg mx-auto min-h-screen bg-gray-900 flex flex-col">
+        
+        <!-- Main Content -->
+        <main class="flex-grow p-4 pb-24">
+            
+            <!-- Page: Panel -->
+            <div id="page-panel" class="page active">
+                <header class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold">Panel</h1>
+                    <button class="text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </button>
+                </header>
+
+                <h2 class="text-xl font-semibold text-gray-300 mb-4">Resumen de gastos</h2>
+                
+                <div class="flex space-x-2 border-b border-gray-700 mb-6">
+                    <button class="py-2 px-4 text-white border-b-2 border-blue-500 font-semibold">Mes</button>
+                    <button class="py-2 px-4 text-gray-400">Año</button>
+                    <button class="py-2 px-4 text-gray-400">Categoría</button>
+                </div>
+
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <p class="text-sm text-gray-400">Gastos acumulados por mes</p>
+                            <p id="total-gastos-mes" class="text-3xl font-bold mt-1">$0.00</p>
+                        </div>
+                        <p id="porcentaje-cambio" class="text-green-400 font-semibold text-sm">+0%</p>
+                    </div>
+                    <!-- Chart Placeholder -->
+                    <div class="h-48 flex justify-around items-end space-x-2">
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page: Nuevo Gasto -->
+            <div id="page-nuevo" class="page">
+                <header class="flex items-center mb-6 relative">
+                    <button class="absolute left-0 text-gray-300 touch-active" onclick="app.navigateTo('panel')">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                    <h1 class="text-2xl font-bold text-center w-full">Nuevo gasto</h1>
+                </header>
+                
+                <form id="new-expense-form" class="space-y-6">
+                    <div>
+                        <label for="monto" class="block text-sm font-medium text-gray-400 mb-2">Monto</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">$</span>
+                            <input type="number" id="monto" name="monto" class="bg-gray-800 border border-gray-700 rounded-lg w-full py-3 pl-7 pr-3 text-white placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00" required step="0.01">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="fecha" class="block text-sm font-medium text-gray-400 mb-2">Fecha</label>
+                         <input type="date" id="fecha" name="fecha" class="bg-gray-800 border border-gray-700 rounded-lg w-full py-3 px-3 text-white focus:ring-blue-500 focus:border-blue-500 appearance-none" required>
+                    </div>
+                    <div>
+                        <label for="categoria" class="block text-sm font-medium text-gray-400 mb-2">Categoría</label>
+                        <select id="categoria" name="categoria" class="bg-gray-800 border border-gray-700 rounded-lg w-full py-3 px-3 text-white focus:ring-blue-500 focus:border-blue-500" required>
+                            <!-- Options will be populated by JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="descripcion" class="block text-sm font-medium text-gray-400 mb-2">Descripción (opcional)</label>
+                        <textarea id="descripcion" name="descripcion" rows="3" class="bg-gray-800 border border-gray-700 rounded-lg w-full py-3 px-3 text-white placeholder-gray-500 focus:ring-blue-500 focus:border-blue-500" placeholder="Agregar una nota..."></textarea>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 touch-active">Guardar gasto</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Page: Reportes -->
+            <div id="page-reportes" class="page">
+                <header class="flex items-center mb-6 relative">
+                    <button class="absolute left-0 text-gray-300 touch-active" onclick="app.navigateTo('panel')">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <h1 class="text-2xl font-bold text-center w-full">Reportes</h1>
+                </header>
+
+                <div class="space-y-4 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-300">Filtros</h3>
+                    <select id="filter-month" class="bg-gray-800 border border-gray-700 rounded-lg w-full py-3 px-3 text-white focus:ring-blue-500 focus:border-blue-500">
+                        <!-- Month options populated by JS -->
+                    </select>
+                    <select id="filter-year" class="bg-gray-800 border border-gray-700 rounded-lg w-full py-3 px-3 text-white focus:ring-blue-500 focus:border-blue-500">
+                        <!-- Year options populated by JS -->
+                    </select>
+                     <select id="filter-category" class="bg-gray-800 border border-gray-700 rounded-lg w-full py-3 px-3 text-white focus:ring-blue-500 focus:border-blue-500">
+                        <!-- Category options populated by JS -->
+                    </select>
+                </div>
+
+                <div class="flex space-x-2 bg-gray-800 p-1 rounded-lg mb-6">
+                    <button class="w-full py-2 px-4 bg-gray-700 rounded-md font-semibold">Lista</button>
+                    <button class="w-full py-2 px-4 text-gray-400">Gráfico</button>
+                </div>
+
+                <h3 class="text-lg font-semibold text-gray-300 mb-4">Gastos Acumulados</h3>
+                <div id="expense-list" class="space-y-3">
+                    <!-- Expense items will be populated by JS -->
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-gray-800 border-t border-gray-700 flex justify-around items-center h-20">
+            <a href="#panel" data-page="panel" class="nav-link flex flex-col items-center justify-center text-blue-500 w-full h-full touch-active">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
+                <span class="text-xs font-medium">Panel</span>
+            </a>
+            <a href="#historial" data-page="historial" class="nav-link flex flex-col items-center justify-center text-gray-400 w-full h-full touch-active">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span class="text-xs font-medium">Historial</span>
+            </a>
+            <div class="relative w-full flex justify-center">
+                 <button data-page="nuevo" class="nav-link absolute bottom-6 bg-blue-600 text-white rounded-full h-16 w-16 flex items-center justify-center shadow-lg shadow-blue-500/30 touch-active">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                </button>
+            </div>
+            <a href="#reportes" data-page="reportes" class="nav-link flex flex-col items-center justify-center text-gray-400 w-full h-full touch-active">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                <span class="text-xs font-medium">Reportes</span>
+            </a>
+            <a href="#ajustes" data-page="ajustes" class="nav-link flex flex-col items-center justify-center text-gray-400 w-full h-full touch-active">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <span class="text-xs font-medium">Ajustes</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
