@@ -10,6 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2072f5">
 </head>
 <body class="bg-white text-gray-900 dark:bg-gray-900 dark:text-white antialiased">
 
@@ -63,7 +65,7 @@
                     <div class="flex justify-between items-start mb-2">
                         <div>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Gastos acumulados</p>
-                            <p id="total-gastos-mes" class="text-3xl font-bold mt-1">$0.00</p>
+                            <p id="total-acumulado" class="text-3xl font-bold mt-1">$0.00</p>
                         </div>
                         <div class="flex space-x-1 border border-gray-300 dark:border-gray-700 rounded-lg p-1">
                             <button id="btn-chart-month" class="px-3 py-1 text-sm rounded-md bg-white dark:bg-gray-700 font-semibold">Mes</button>
@@ -95,7 +97,7 @@
                     <button id="btn-grafico" class="w-full py-2 px-4 text-gray-500 dark:text-gray-400">Gráfico</button>
                 </div>
 
-                <div class="flex justify-between items-center mb-4">
+                <div class="flex justify-between items-center mb-2">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-300">Listado de Gastos</h3>
                     <div class="flex items-center">
                         <label for="sort-order" class="text-sm mr-2 text-gray-500 dark:text-gray-400">Ordenar:</label>
@@ -104,6 +106,58 @@
                             <option value="oldest">Más antiguos</option>
                         </select>
                     </div>
+                </div>
+                <div class="flex justify-end items-center mb-4">
+                    <p id="filtered-total" class="text-md font-bold text-gray-500 dark:text-gray-400"></p>
+                </div>
+                <div id="expense-list" class="space-y-3">
+                    <!-- Expense items will be populated by JS -->
+                </div>
+                <div id="chart-container" class="hidden h-72">
+                    <canvas id="report-chart"></canvas>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- Modal -->
+        <div id="expense-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4">
+            <div id="modal-content" class="bg-gray-100 dark:bg-gray-800 rounded-lg w-full max-w-md p-6 space-y-4">
+                <!-- Content will be injected by JS -->
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center h-20 px-4">
+            <div class="flex justify-around items-center h-full">
+                <a href="#reportes" data-page="reportes" class="nav-link flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 w-20 h-full touch-active">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2v-2a1 1 0 011-1h2a1 1 0 011 1v2a2 2 0 002 2h2a2 2 0 002-2v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
+                    <span class="text-xs font-medium">Reportes</span>
+                </a>
+                <a href="#ajustes" data-page="ajustes" class="nav-link flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 w-20 h-full touch-active">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <span class="text-xs font-medium">Ajustes</span>
+                </a>
+            </div>
+            <button data-page="nuevo" class="nav-link bg-blue-600 text-white rounded-full h-14 w-14 flex items-center justify-center shadow-lg shadow-blue-500/30 touch-active">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+            </button>
+        </nav>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+                <div class="flex justify-end items-center mb-4">
+                    <p id="filtered-total" class="text-md font-bold text-gray-500 dark:text-gray-400"></p>
+                </div>
+                <div class="flex justify-end items-center mb-4">
+                    <p id="filtered-total" class="text-md font-bold text-gray-500 dark:text-gray-400"></p>
+                </div>
+                <div class="flex justify-end items-center mb-4">
+                    <p id="filtered-total" class="text-md font-bold text-gray-500 dark:text-gray-400"></p>
                 </div>
                 <div id="expense-list" class="space-y-3">
                     <!-- Expense items will be populated by JS -->

@@ -242,7 +242,7 @@ const app = {
         }
 
         const yearFilter = document.getElementById('filter-year');
-        const years = [...new Set(this.state.expenses.map(e => new Date(e.date.replace(/-/g, '\/')).getFullYear()))];
+        const years = [...new Set(this.state.expenses.map(e => new Date(e.date.replace(/-/g, '/')).getFullYear()))];
         years.sort((a, b) => b - a);
         yearFilter.innerHTML = '<option value="all">Todos los años</option>';
         years.forEach(year => {
@@ -254,20 +254,11 @@ const app = {
         this.renderSummary();
         this.renderReportList();
         this.renderReportChart();
-        const totalHistorico = this.state.expenses.reduce((sum, e) => sum + e.amount, 0);
-        document.getElementById('total-historico').textContent = `${totalHistorico.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     },
 
     renderSummary() {
-        const totalThisMonth = this.state.expenses
-            .filter(e => {
-                const date = new Date(e.date.replace(/-/g, '\/'));
-                const now = new Date();
-                return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-            })
-            .reduce((sum, e) => sum + e.amount, 0);
-        
-        document.getElementById('total-gastos-mes').textContent = `${totalThisMonth.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const totalHistorico = this.state.expenses.reduce((sum, e) => sum + e.amount, 0);
+        document.getElementById('total-acumulado').textContent = `${totalHistorico.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         this.renderSummaryChart();
     },
 
@@ -305,7 +296,7 @@ const app = {
     getMonthlyChartConfig() {
         const monthlyTotals = Array(12).fill(0);
         this.state.expenses.forEach(e => {
-            const date = new Date(e.date.replace(/-/g, '\/'));
+            const date = new Date(e.date.replace(/-/g, '/'));
             if (date.getFullYear() === new Date().getFullYear()) {
                 monthlyTotals[date.getMonth()] += e.amount;
             }
@@ -327,7 +318,7 @@ const app = {
     getYearlyChartConfig() {
         const yearlyTotals = {};
         this.state.expenses.forEach(e => {
-            const year = new Date(e.date.replace(/-/g, '\/')).getFullYear();
+            const year = new Date(e.date.replace(/-/g, '/')).getFullYear();
             if (!yearlyTotals[year]) yearlyTotals[year] = 0;
             yearlyTotals[year] += e.amount;
         });
@@ -411,7 +402,7 @@ const app = {
         const searchTerm = document.getElementById('filter-search').value.toLowerCase();
         
         return this.state.expenses.filter(e => {
-            const date = new Date(e.date.replace(/-/g, '\/'));
+            const date = new Date(e.date.replace(/-/g, '/'));
             const monthMatch = monthFilter === 'all' || date.getMonth() == monthFilter;
             const yearMatch = yearFilter === 'all' || date.getFullYear() == yearFilter;
             const categoryMatch = categoryFilter === 'all' || e.category === categoryFilter;
@@ -425,9 +416,9 @@ const app = {
         const filteredExpenses = this.getFilteredExpenses();
 
         if (this.state.expensesSortOrder === 'newest') {
-            filteredExpenses.sort((a, b) => new Date(b.date.replace(/-/g, '\/')) - new Date(a.date.replace(/-/g, '\/')));
+            filteredExpenses.sort((a, b) => new Date(b.date.replace(/-/g, '/')) - new Date(a.date.replace(/-/g, '/')));
         } else {
-            filteredExpenses.sort((a, b) => new Date(a.date.replace(/-/g, '\/')) - new Date(b.date.replace(/-/g, '\/')));
+            filteredExpenses.sort((a, b) => new Date(a.date.replace(/-/g, '/')) - new Date(b.date.replace(/-/g, '/')));
         }
         
         if (filteredExpenses.length === 0) {
@@ -435,6 +426,7 @@ const app = {
                 <p>No hay gastos que mostrar.</p>
                 <p class="text-sm">Intenta ajustar los filtros o agrega un nuevo gasto.</p>
             </div>`;
+            document.getElementById('filtered-total').textContent = ''; // Clear the total
             return;
         }
 
@@ -449,11 +441,14 @@ const app = {
                     </div>
                     <div class="text-right">
                         <p class="font-bold text-lg text-gray-800 dark:text-white">${expense.amount.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-500">${new Date(expense.date.replace(/-/g, '\/')).toLocaleDateString()}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-500">${new Date(expense.date.replace(/-/g, '/')).toLocaleDateString()}</p>
                     </div>
                 </div>
             `;
         }).join('');
+
+        const totalFiltered = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
+        document.getElementById('filtered-total').textContent = `Total: ${totalFiltered.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     },
 
     renderReportChart() {
@@ -537,7 +532,7 @@ const app = {
             </div>
             <div class="text-sm text-gray-500 dark:text-gray-400 space-y-2">
                 <p><strong>Categoría:</strong> ${expense.category}</p>
-                <p><strong>Fecha:</strong> ${new Date(expense.date.replace(/-/g, '\/')).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                <p><strong>Fecha:</strong> ${new Date(expense.date.replace(/-/g, '/')).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
             </div>
             <div class="flex justify-end space-x-3 pt-4">
                 <button onclick="app.deleteExpense('${id}')" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">Eliminar</button>
